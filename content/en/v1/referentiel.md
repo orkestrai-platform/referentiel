@@ -640,3 +640,365 @@ Preparing evidence strongly increases success probability:
 - rollback ready;
 - observability operational;
 - incident runbook up to date.
+
+## 11. Agentic orchestration operating model
+
+This section defines the target way of working for teams using coding
+AI agents in professional environments.
+
+### 11.1 Orchestration value chain
+
+Recommended cycle for each change:
+
+1. **Intent**: clarify business need and explicit non-goals.
+2. **Plan**: split work into testable, ordered micro-batches.
+3. **Execute**: produce one minimal patch per batch.
+4. **Verify**: run quality gates and risk-first review.
+5. **Decide**: accept, reject, or rework the batch.
+6. **Trace**: archive context, prompts, and decisions.
+
+A batch is done only when evidence exists:
+
+- readable diff;
+- relevant tests;
+- explicit residual risks;
+- signed human decision in the PR.
+
+### 11.2 Minimal roles and responsibilities
+
+Recommended roles for an "architect-grade" level:
+
+- **Architect**: defines invariants, boundaries, and allowed dependencies.
+- **Lead dev**: drives sequencing and tradeoff arbitration.
+- **Developer**: orchestrates the agent in strict scope.
+- **Reviewer**: validates robustness, readability, and regressions.
+- **Security champion**: validates threats and compliance.
+
+Simplified RACI matrix:
+
+| Activity | Architect | Lead | Dev | Reviewer | Sec |
+| --- | --- | --- | --- | --- | --- |
+| Define target architecture | R | A | C | I | C |
+| Frame prompts and context | C | A | R | I | C |
+| Implement batch | I | C | R | I | I |
+| Risk review | C | A | C | R | R |
+| Merge decision | C | A | C | R | C |
+
+### 11.3 Agentic task input/output contract
+
+**Minimum input**:
+
+- business intent (one paragraph);
+- verifiable acceptance criteria;
+- allowed files;
+- architecture/security constraints;
+- validation commands.
+
+**Minimum output**:
+
+- implementation plan;
+- patch;
+- tests and results;
+- residual risks;
+- suggested commit message.
+
+### 11.4 Team maturity criteria
+
+"Bronze" level:
+
+- occasional AI usage with manual validation;
+- partial, inconsistent conventions.
+
+"Silver" level:
+
+- stable protocol per task type;
+- measured quality (tests, lint, static analysis);
+- traceability for major decisions.
+
+"Gold" level:
+
+- industrialized orchestration;
+- tooled governance of prompts and contexts;
+- continuous improvement via postmortems and metrics.
+
+## 12. Prompt protocols and concrete examples
+
+### 12.1 Architecture diagnosis prompt
+
+```text
+Goal: identify strong coupling zones in [module].
+Context: target architecture [hexagonal / clean / layered].
+Constraints: no global rewrite proposals.
+Output: top 5 risks, impacts, and remediation order.
+```
+
+Expected usage:
+
+- discovery phase;
+- remediation backlog creation;
+- prioritization before implementation.
+
+### 12.2 Controlled implementation prompt
+
+```text
+Goal: implement [feature] in the allowed files.
+Constraints:
+- no out-of-scope changes;
+- no new dependency;
+- tests required.
+Output:
+1) short plan
+2) patch
+3) tests
+4) risks
+```
+
+Mandatory human checks:
+
+- consistency with domain model;
+- naming convention compliance;
+- explicit edge-case verification.
+
+### 12.3 Regression-safe refactor prompt
+
+```text
+Goal: reduce complexity in [file/method].
+Forbidden: changing functional behavior.
+Output: 3-step proposal + non-regression tests.
+```
+
+Concrete expected evidence:
+
+- cyclomatic complexity before/after;
+- method size before/after;
+- unchanged or improved test coverage.
+
+### 12.4 Targeted security review prompt
+
+```text
+Context: endpoint [X] with user input.
+Task: analyze OWASP risks and propose fixes.
+Output: likely vulnerabilities + minimal patches + tests.
+```
+
+Operational expectation:
+
+- server-side validation;
+- non-verbose error messages;
+- auth/authz verification;
+- no secret leakage.
+
+### 12.5 Forbidden prompt patterns in production
+
+- sending plaintext secrets;
+- sending PII without legal basis;
+- asking for security bypasses;
+- asking for a "quick fix" without tests.
+
+## 13. Threat model specific to AI agents
+
+### 13.1 Main threats
+
+- **Prompt injection** through untrusted content.
+- **Exfiltration** of sensitive data in context.
+- **Tool abuse** (actions outside allowed scope).
+- **Dependency poisoning** via unverified suggestions.
+- **Critical hallucination** in security-sensitive zones.
+
+### 13.2 Risk reduction controls
+
+- strict separation of tool permissions;
+- allowlist of commands and editable paths;
+- sandbox execution; explicit approval for elevation;
+- prompt data redaction/anonymization;
+- two-person human validation for security/compliance.
+
+### 13.3 Attack scenario and response
+
+Scenario:
+
+1. a ticket includes malicious instructions;
+2. the agent interprets them as valid commands;
+3. proposed patch introduces data leakage.
+
+Expected response:
+
+- detect in risk-first diff review;
+- reject patch;
+- clean context;
+- add security non-regression test;
+- incident note and prompt guide update.
+
+### 13.4 Recommended control log
+
+For each agentic session:
+
+- session identifier;
+- file scope;
+- tools used;
+- flagged risks;
+- final decision and rationale.
+
+## 14. Advanced audit evidence package
+
+### 14.1 Recommended folder structure
+
+```text
+audit-evidence/
+  01-architecture/
+  02-orchestration-ia/
+  03-quality-gates/
+  04-security/
+  05-performance/
+  06-runbooks/
+  07-postmortems/
+```
+
+### 14.2 Minimum evidence by axis
+
+Architecture:
+
+- dependency diagram;
+- coded architecture rules (deptrac, etc.);
+- major ADRs.
+
+AI orchestration:
+
+- prompt templates;
+- sample traced sessions;
+- justified rejection examples.
+
+Quality:
+
+- test reports;
+- static analysis reports;
+- technical debt report.
+
+Security:
+
+- dependency scan;
+- secret scan;
+- proof of at least one fixed issue.
+
+Performance:
+
+- baseline;
+- budgets;
+- before/after optimization measures.
+
+### 14.3 Architect-oriented oral defense
+
+Expected questions:
+
+1. Which architecture invariants are non-negotiable?
+2. Which tasks are explicitly forbidden for the agent?
+3. Where is non-regression proof?
+4. What is your documented rollback plan?
+
+## 15. Runbooks and operational procedures
+
+### 15.1 "AI patch incident" runbook
+
+Trigger:
+
+- production regression tied to an agentic patch.
+
+Procedure:
+
+1. freeze merges;
+2. isolate faulty commit;
+3. rollback per procedure;
+4. open postmortem;
+5. strengthen missing prompt/control rule.
+
+### 15.2 "Exposed secret" runbook
+
+1. revoke key immediately;
+2. invalidate linked sessions/tokens;
+3. purge history where applicable;
+4. notify impacted parties;
+5. document root cause and preventive action.
+
+### 15.3 "Failed migration" runbook
+
+1. stop writes;
+2. quick diagnosis;
+3. rollback or validated restoration;
+4. data integrity verification;
+5. progressive restart with stronger monitoring.
+
+### 15.4 Standard postmortem template
+
+Minimum sections:
+
+- factual timeline;
+- impact;
+- root causes;
+- failed barriers;
+- corrective actions;
+- effectiveness verification date.
+
+## 16. Normative bibliography and trusted sources
+
+The sources below are recommended as shared references.
+They should be cited in ADRs, internal guides, and training materials.
+
+### 16.1 Application security and SDLC
+
+- NIST Secure Software Development Framework (SP 800-218):
+  [NIST SSDF](https://csrc.nist.gov/pubs/sp/800/218/final)
+- OWASP Top 10 (2021):
+  [OWASP Top 10](https://owasp.org/Top10/)
+- OWASP ASVS:
+  [OWASP ASVS](https://owasp.org/www-project-application-security-verification-standard/)
+- OWASP Cheat Sheet Series:
+  [OWASP Cheat Sheets](https://cheatsheetseries.owasp.org/)
+- OWASP Top 10 for LLM Applications:
+  [OWASP LLM Top 10](https://owasp.org/www-project-top-10-for-large-language-model-applications/)
+
+### 16.2 Supply chain, provenance, and integrity
+
+- SLSA Framework:
+  [SLSA](https://slsa.dev/)
+- in-toto framework:
+  [in-toto](https://in-toto.io/)
+- OpenSSF Scorecard:
+  [OpenSSF Scorecard](https://securityscorecards.dev/)
+- SPDX specification:
+  [SPDX](https://spdx.dev/specifications/)
+- CycloneDX SBOM:
+  [CycloneDX](https://cyclonedx.org/specification/)
+
+### 16.3 Operations, incident handling, observability
+
+- NIST Computer Security Incident Handling Guide (SP 800-61r2):
+  [NIST 800-61r2](https://csrc.nist.gov/pubs/sp/800/61/r2/final)
+- OpenTelemetry specification:
+  [OpenTelemetry Spec](https://opentelemetry.io/docs/specs/)
+
+### 16.4 Git, traceability, and contribution standards
+
+- Git worktree documentation:
+  [git-worktree](https://git-scm.com/docs/git-worktree)
+- Conventional Commits 1.0.0:
+  [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/)
+- Keep a Changelog:
+  [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
+
+### 16.5 AI governance and reliability
+
+- NIST AI Risk Management Framework 1.0:
+  [NIST AI RMF](https://www.nist.gov/itl/ai-risk-management-framework)
+- ISO/IEC 42001 overview (AI management systems):
+  [ISO 42001 Overview](https://www.iso.org/standard/81230.html)
+- Model Spec (OpenAI):
+  [OpenAI Model Spec](https://model-spec.openai.com/)
+
+### 16.6 Product method and testing references
+
+- Twelve-Factor App:
+  [12factor](https://12factor.net/)
+- Martin Fowler, Test Pyramid:
+  [Test Pyramid](https://martinfowler.com/articles/practical-test-pyramid.html)
+- CISA Secure by Design:
+  [Secure by Design](https://www.cisa.gov/securebydesign)
