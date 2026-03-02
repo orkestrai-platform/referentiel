@@ -22,4 +22,4 @@ We are committed to a respectful, inclusive, and constructive collaboration spac
 Maintainers may edit, close, or reject contributions that violate this code.
 Serious or repeated violations may lead to contribution restrictions.
 
-For concerns, contact: security@orkestrai.org
+For concerns, contact: <security@orkestrai.org>
