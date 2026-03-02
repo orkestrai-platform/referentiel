@@ -643,3 +643,365 @@ Préparer un dossier de preuves augmente fortement la réussite:
 - rollback prêt;
 - observabilité opérationnelle;
 - incident runbook à jour.
+
+## 11. Modèle opératoire d'orchestration agentique
+
+Cette section formalise le mode de fonctionnement cible d'une équipe qui
+utilise des agents de codage IA en environnement professionnel.
+
+### 11.1 Chaîne de valeur de l'orchestration
+
+Cycle recommandé sur chaque changement:
+
+1. **Intent**: clarifier le besoin métier et les non-objectifs.
+2. **Plan**: découper en micro-lots testables et ordonnés.
+3. **Execute**: produire un patch minimal par lot.
+4. **Verify**: exécuter quality gates et revue orientée risques.
+5. **Decide**: accepter, rejeter ou re-travailler le lot.
+6. **Trace**: archiver contexte, prompts et décisions.
+
+Un lot n'est terminé que si les preuves sont disponibles:
+
+- diff lisible;
+- tests adaptés;
+- risques explicités;
+- décision humaine signée dans la PR.
+
+### 11.2 Rôles minimaux et responsabilités
+
+Rôles recommandés pour un niveau "architecte-compatible":
+
+- **Architecte**: cadre les invariants, frontières, dépendances autorisées.
+- **Lead dev**: pilote le séquencement, arbitre les compromis.
+- **Développeur**: orchestre l'agent sur un périmètre strict.
+- **Reviewer**: valide robustesse, lisibilité, non-régression.
+- **Security champion**: vérifie menaces et conformité.
+
+Matrice RACI simplifiée:
+
+| Activité | Architecte | Lead | Dev | Reviewer | Sec |
+| --- | --- | --- | --- | --- | --- |
+| Définir architecture cible | R | A | C | I | C |
+| Cadrer prompts et contexte | C | A | R | I | C |
+| Implémenter lot | I | C | R | I | I |
+| Revue de risque | C | A | C | R | R |
+| Décision de merge | C | A | C | R | C |
+
+### 11.3 Contrat d'entrée/sortie d'une tâche agentique
+
+**Entrée minimale**:
+
+- intention métier (1 paragraphe);
+- critères d'acceptation vérifiables;
+- fichiers autorisés;
+- contraintes architecture/sécurité;
+- commandes de validation.
+
+**Sortie minimale**:
+
+- plan d'implémentation;
+- patch;
+- tests et résultats;
+- risques résiduels;
+- proposition de message de commit.
+
+### 11.4 Critères de maturité équipe
+
+Niveau "bronze":
+
+- usage ponctuel de l'IA avec validation manuelle;
+- conventions partielles et hétérogènes.
+
+Niveau "argent":
+
+- protocole stable par type de tâche;
+- qualité mesurée (tests, lint, static analysis);
+- traçabilité des décisions majeure.
+
+Niveau "or":
+
+- orchestration industrialisée;
+- gouvernance outillée des prompts et contextes;
+- amélioration continue par postmortem et métriques.
+
+## 12. Protocoles de prompts et exemples concrets
+
+### 12.1 Prompt de diagnostic architecture
+
+```text
+Objectif: identifier les zones de couplage fort dans [module].
+Contexte: architecture visée [hexagonale / clean / layered].
+Contraintes: ne pas proposer de refonte globale.
+Sortie: top 5 risques, impacts, ordre de traitement.
+```
+
+Usage attendu:
+
+- phase de découverte;
+- création d'un backlog de remédiation;
+- priorisation avant implémentation.
+
+### 12.2 Prompt d'implémentation contrôlée
+
+```text
+Objectif: implémenter [feature] dans les fichiers autorisés.
+Contraintes:
+- aucun changement hors périmètre;
+- pas de nouvelle dépendance;
+- tests requis.
+Sortie:
+1) plan court
+2) patch
+3) tests
+4) risques
+```
+
+Contrôles humains obligatoires:
+
+- cohérence avec le modèle métier;
+- conformité aux conventions de nommage;
+- vérification explicite des cas limites.
+
+### 12.3 Prompt de refactor sans régression
+
+```text
+Objectif: réduire la complexité de [fichier/méthode].
+Interdits: modifier le comportement fonctionnel.
+Sortie: proposition en 3 étapes + tests de non-régression.
+```
+
+Exemple concret de preuve attendue:
+
+- complexité cyclomatique avant/après;
+- taille de méthode avant/après;
+- couverture tests inchangée ou améliorée.
+
+### 12.4 Prompt de revue sécurité ciblée
+
+```text
+Contexte: endpoint [X] avec entrée utilisateur.
+Mission: analyser risques OWASP et proposer correctifs.
+Sortie: vulnérabilités probables + patchs minimaux + tests.
+```
+
+Attendu opérationnel:
+
+- validation côté serveur;
+- messages d'erreur non verbeux;
+- vérification auth/authz;
+- absence de fuite de secrets.
+
+### 12.5 Règles interdites pour prompts en production
+
+- envoyer des secrets en clair;
+- envoyer des PII sans base légale;
+- demander des contournements sécurité;
+- demander un "quick fix" sans tests.
+
+## 13. Modèle de menace spécifique aux agents IA
+
+### 13.1 Menaces principales
+
+- **Prompt injection** via contenus non fiables.
+- **Exfiltration** de données sensibles dans le contexte.
+- **Tool abuse** (exécution d'actions hors périmètre).
+- **Dependency poisoning** via suggestions non vérifiées.
+- **Hallucination critique** en zone de sécurité.
+
+### 13.2 Contrôles de réduction du risque
+
+- séparation stricte des permissions d'outils;
+- allowlist de commandes et chemins modifiables;
+- sandbox pour exécution; élévation explicitement approuvée;
+- redaction/anonymisation des données de prompt;
+- double validation humaine pour sécurité et conformité.
+
+### 13.3 Scénario d'attaque et réponse
+
+Scénario:
+
+1. un ticket inclut un extrait malveillant;
+2. l'agent interprète cet extrait comme instruction;
+3. le patch proposé ajoute une fuite de données.
+
+Réponse attendue:
+
+- détection en revue de diff orientée risques;
+- rejet du patch;
+- nettoyage du contexte;
+- ajout d'un test de non-régression sécurité;
+- note d'incident et mise à jour du guide de prompts.
+
+### 13.4 Journal de contrôle recommandé
+
+Pour chaque session agentique:
+
+- identifiant de session;
+- périmètre de fichiers;
+- outils utilisés;
+- risques signalés;
+- décision finale et motif.
+
+## 14. Pack de preuves pour audit avancé
+
+### 14.1 Arborescence recommandée
+
+```text
+audit-evidence/
+  01-architecture/
+  02-orchestration-ia/
+  03-quality-gates/
+  04-security/
+  05-performance/
+  06-runbooks/
+  07-postmortems/
+```
+
+### 14.2 Preuves minimales par axe
+
+Architecture:
+
+- schéma de dépendances;
+- règles d'architecture codées (deptrac, etc.);
+- ADR majeures.
+
+Orchestration IA:
+
+- templates de prompts;
+- échantillon de sessions tracées;
+- exemples de rejets justifiés.
+
+Qualité:
+
+- rapports tests;
+- rapports static analysis;
+- rapport dette technique.
+
+Sécurité:
+
+- scan dépendances;
+- scan secret;
+- preuve de correction d'au moins une faille.
+
+Performance:
+
+- baseline;
+- budgets;
+- mesures avant/après optimisation.
+
+### 14.3 Défense orale orientée architecte
+
+Questions attendues:
+
+1. Quels invariants d'architecture sont non négociables?
+2. Quelles tâches sont explicitement interdites à l'agent?
+3. Où est la preuve de non-régression?
+4. Quel est votre plan de rollback documenté?
+
+## 15. Runbooks et procédures opérationnelles
+
+### 15.1 Runbook "incident patch IA"
+
+Déclencheur:
+
+- régression en production liée à un patch agentique.
+
+Procédure:
+
+1. geler les merges;
+2. isoler le commit fautif;
+3. rollback selon procédure;
+4. ouvrir postmortem;
+5. renforcer règle de prompt ou contrôle manquant.
+
+### 15.2 Runbook "secret exposé"
+
+1. révoquer immédiatement la clé;
+2. invalider sessions/tokens associés;
+3. purger historique si applicable;
+4. notifier les parties concernées;
+5. documenter cause racine et action préventive.
+
+### 15.3 Runbook "migration défaillante"
+
+1. stop write;
+2. diagnostic rapide;
+3. rollback ou restauration validée;
+4. vérification d'intégrité des données;
+5. reprise progressive avec monitoring renforcé.
+
+### 15.4 Postmortem standard
+
+Sections minimales:
+
+- timeline factuelle;
+- impact;
+- causes racines;
+- barrières qui ont échoué;
+- actions correctives;
+- date de vérification d'efficacité.
+
+## 16. Bibliographie normative et sources fiables
+
+Les sources ci-dessous sont recommandées comme base commune d'exigence.
+Elles doivent être citées dans les ADR, guides internes et formations.
+
+### 16.1 Sécurité applicative et SDLC
+
+- NIST Secure Software Development Framework (SP 800-218):
+  [NIST SSDF](https://csrc.nist.gov/pubs/sp/800/218/final)
+- OWASP Top 10 (2021):
+  [OWASP Top 10](https://owasp.org/Top10/)
+- OWASP ASVS:
+  [OWASP ASVS](https://owasp.org/www-project-application-security-verification-standard/)
+- OWASP Cheat Sheet Series:
+  [OWASP Cheat Sheets](https://cheatsheetseries.owasp.org/)
+- OWASP Top 10 for LLM Applications:
+  [OWASP LLM Top 10](https://owasp.org/www-project-top-10-for-large-language-model-applications/)
+
+### 16.2 Supply chain, provenance et intégrité
+
+- SLSA Framework:
+  [SLSA](https://slsa.dev/)
+- in-toto framework:
+  [in-toto](https://in-toto.io/)
+- OpenSSF Scorecard:
+  [OpenSSF Scorecard](https://securityscorecards.dev/)
+- SPDX specification:
+  [SPDX](https://spdx.dev/specifications/)
+- CycloneDX SBOM:
+  [CycloneDX](https://cyclonedx.org/specification/)
+
+### 16.3 Opérations, incident et observabilité
+
+- NIST Computer Security Incident Handling Guide (SP 800-61r2):
+  [NIST 800-61r2](https://csrc.nist.gov/pubs/sp/800/61/r2/final)
+- OpenTelemetry specification:
+  [OpenTelemetry Spec](https://opentelemetry.io/docs/specs/)
+
+### 16.4 Git, traçabilité et standards de contribution
+
+- Git worktree documentation:
+  [git-worktree](https://git-scm.com/docs/git-worktree)
+- Conventional Commits 1.0.0:
+  [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/)
+- Keep a Changelog:
+  [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
+
+### 16.5 Gouvernance IA et fiabilité
+
+- NIST AI Risk Management Framework 1.0:
+  [NIST AI RMF](https://www.nist.gov/itl/ai-risk-management-framework)
+- ISO/IEC 42001 overview (AI management systems):
+  [ISO 42001 Overview](https://www.iso.org/standard/81230.html)
+- Model Spec (OpenAI):
+  [OpenAI Model Spec](https://model-spec.openai.com/)
+
+### 16.6 Références de méthode produit et test
+
+- Twelve-Factor App:
+  [12factor](https://12factor.net/)
+- Martin Fowler, Test Pyramid:
+  [Test Pyramid](https://martinfowler.com/articles/practical-test-pyramid.html)
+- CISA Secure by Design:
+  [Secure by Design](https://www.cisa.gov/securebydesign)
