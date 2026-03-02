@@ -1,3 +1,5 @@
+# OrkestrAI Referential
+
 The OrkestrAI standards is a comprehensive evaluation framework, designed to measure the quality
 of code produced in collaboration with artificial intelligence tools. It is not about judging
 whether AI was used — **but about verifying that its use was controlled,
@@ -537,25 +539,25 @@ Preparing evidence strongly increases success probability:
 
 ### 9.2 Four-week training plan
 
-**Week 1**
+### Week 1
 
 - project frame setup;
 - commit/PR standards;
 - one tested micro-feature.
 
-**Week 2**
+### Week 2
 
 - separation of concerns hardening;
 - risk-oriented review practice;
 - testability improvements.
 
-**Week 3**
+### Week 3
 
 - performance/sobriety work;
 - OWASP + secrets hardening;
 - incident simulation and diagnosis.
 
-**Week 4**
+### Week 4
 
 - full mock audit;
 - gap remediation;

@@ -1,3 +1,5 @@
+# Référentiel OrkestrAI
+
 Le référentiel OrkestrAI est un cadre d'évaluation complet, conçu pour mesurer la qualité
 du code produit en collaboration avec des outils d'intelligence artificielle. Il ne s'agit pas
 de juger si l'IA a été utilisée — **mais de vérifier que son utilisation a été maîtrisée,
@@ -576,25 +578,25 @@ Préparer un dossier de preuves augmente fortement la réussite:
 
 ### 9.2 Plan d'entraînement (4 semaines)
 
-**Semaine 1**
+### Semaine 1
 
 - setup du cadre projet;
 - standards de commits/PR;
 - micro-feature avec tests.
 
-**Semaine 2**
+### Semaine 2
 
 - travail sur séparation des responsabilités;
 - revue de code guidée risques;
 - amélioration de la testabilité.
 
-**Semaine 3**
+### Semaine 3
 
 - performance/sobriété;
 - sécurité OWASP + secrets;
 - simulation incident + diagnostic.
 
-**Semaine 4**
+### Semaine 4
 
 - audit blanc complet;
 - correction des écarts;
