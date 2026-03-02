@@ -404,6 +404,12 @@ and aligned with the target architecture.
 - `docs/backlog.md` (short, verifiable tasks);
 - `docs/prompts/` (reusable templates).
 
+**Maturity signals:**
+
+- prompts are objective-driven and tied to acceptance criteria;
+- AI is explicitly constrained to editable file scopes;
+- outputs systematically include risks and test strategy.
+
 ### 6.4 Prompt catalog and reproducibility
 
 The referential is tool-agnostic but method-driven.
@@ -419,6 +425,12 @@ A prompt catalog makes generations replayable and comparable.
 6. Known risks
 7. Verification commands
 
+**How to audit:**
+
+- verify that prompt templates exist and are versioned;
+- run a replay on a similar task;
+- compare readability, robustness and convention compliance.
+
 ### 6.5 Risk-oriented diff review
 
 Reviewing AI patches should prioritize risk over style.
@@ -431,6 +443,12 @@ Reviewing AI patches should prioritize risk over style.
 4. Architectural coupling
 5. Technical debt
 6. Style/readability
+
+**How to audit:**
+
+- inspect quality and relevance of review comments;
+- confirm critical blockers are resolved before merge;
+- verify that trade-off decisions are documented.
 
 ## 7. Delivery, CI/CD and Operations
 
@@ -447,6 +465,12 @@ Critical controls should be automated.
 - dependency security scan;
 - reproducible build.
 
+**How to audit:**
+
+- review the CI configuration;
+- verify failed checks block merges;
+- confirm there is no permanent check bypass.
+
 ### 7.2 Migrations and data safety
 
 AI-assisted migrations are high risk when not tested with realistic data.
@@ -457,6 +481,12 @@ AI-assisted migrations are high risk when not tested with realistic data.
 - planned rollback;
 - backup before destructive operations;
 - post-migration verification scripts.
+
+**How to audit:**
+
+- review recent migrations;
+- verify DB integration tests exist;
+- verify rollback and recovery strategy.
 
 ### 7.3 Observability and diagnostics
 
@@ -469,6 +499,12 @@ and traces, AI-induced issues become hard to explain.
 - technical metrics (latency, errors, saturation);
 - alerts on critical thresholds;
 - incident runbooks.
+
+**How to audit:**
+
+- inspect real log payloads and correlation quality;
+- simulate an error and validate diagnosis speed;
+- verify that runbooks are actionable and up to date.
 
 ### 7.4 Performance and sobriety budgets
 
