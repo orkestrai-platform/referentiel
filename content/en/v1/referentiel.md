@@ -1,6 +1,4 @@
-# OrkestrAI Referential Standard v1
-
-Standard v1
+# OrkestrAI Referential
 
 The OrkestrAI standards is a comprehensive evaluation framework, designed to measure the quality
 of code produced in collaboration with artificial intelligence tools. It is not about judging
@@ -338,3 +336,271 @@ Logs contain no emails, names, or identifying IP addresses. An account deletion 
 exists and anonymizes all user data. The cookie policy is GDPR compliant.
 
 **How to audit:** Full GDPR audit. Review production logs (look for PII). Verify password hashing. Test account deletion. Check the cookie policy and consent.
+
+## 6. Advanced Operational Orchestration
+
+This section extends axes 1 to 5 with execution-level practices. Its purpose is
+to make the referential directly usable for certification preparation, real project
+delivery and team-level standardization.
+
+### 6.1 Git, branching and worktrees
+
+AI-assisted development requires strict task isolation. A single developer may run
+parallel streams: feature work, urgent fix, security review. Without isolation,
+context gets polluted and diffs become non-auditable.
+
+**Recommended practice:**
+
+- one branch per business objective;
+- one worktree per active task (`feature/*`, `fix/*`, `hotfix/*`);
+- no mixed subjects in the same diff;
+- remove worktree once the task is complete.
+
+**Concrete example:**
+
+```bash
+git fetch origin
+git worktree add ../wt-score-endpoint -b feature/score-endpoint origin/main
+cd ../wt-score-endpoint
+```
+
+Each AI session runs in a dedicated worktree with an explicit file scope.
+
+**How to audit:**
+
+- review branch and commit granularity;
+- confirm one patch = one objective;
+- inspect PR readability (no out-of-scope noise);
+- verify no unfinished feature remains hidden in a local worktree.
+
+### 6.2 Commit hygiene and decision traceability
+
+AI-generated code is hard to maintain without decision history.
+A commit should explain "why", not only "what".
+
+**Recommended practice:**
+
+- atomic commits;
+- conventional commit structure (type/scope);
+- generation context reference (prompt, ticket, ADR);
+- explicit assumptions.
+
+**How to audit:**
+
+- read the latest commits in an active area;
+- measure opaque/WIP commit ratio;
+- verify links to docs, tickets or decision records.
+
+### 6.3 AI context management
+
+Strong outputs require strong context. Context must be stable, versioned,
+and aligned with the target architecture.
+
+**Minimum framing files:**
+
+- `AGENTS.md` (interaction rules and forbidden actions);
+- `docs/architecture.md` (technical boundaries);
+- `docs/decisions.md` (arbitration history);
+- `docs/backlog.md` (short, verifiable tasks);
+- `docs/prompts/` (reusable templates).
+
+### 6.4 Prompt catalog and reproducibility
+
+The referential is tool-agnostic but method-driven.
+A prompt catalog makes generations replayable and comparable.
+
+**Suggested template:**
+
+1. Context
+2. Objective
+3. Constraints
+4. Allowed files
+5. Acceptance criteria
+6. Known risks
+7. Verification commands
+
+### 6.5 Risk-oriented diff review
+
+Reviewing AI patches should prioritize risk over style.
+
+**Suggested order:**
+
+1. Functional bugs
+2. Regression risk
+3. Security
+4. Architectural coupling
+5. Technical debt
+6. Style/readability
+
+## 7. Delivery, CI/CD and Operations
+
+### 7.1 CI/CD quality gates
+
+AI-assisted projects must not rely on local validation only.
+Critical controls should be automated.
+
+**Minimum gates:**
+
+- lint/format;
+- unit and integration tests;
+- static analysis;
+- dependency security scan;
+- reproducible build.
+
+### 7.2 Migrations and data safety
+
+AI-assisted migrations are high risk when not tested with realistic data.
+
+**Recommended practice:**
+
+- idempotent or strictly controlled migration strategy;
+- planned rollback;
+- backup before destructive operations;
+- post-migration verification scripts.
+
+### 7.3 Observability and diagnostics
+
+A well-orchestrated system is observable. Without structured logs, metrics
+and traces, AI-induced issues become hard to explain.
+
+**Expected baseline:**
+
+- structured logs with correlation IDs;
+- technical metrics (latency, errors, saturation);
+- alerts on critical thresholds;
+- incident runbooks.
+
+### 7.4 Performance and sobriety budgets
+
+Performance requirements should be explicit. "It works" is not enough.
+
+**Examples:**
+
+- p95 response time target;
+- max page weight;
+- max DB queries per page;
+- memory budget on critical flows.
+
+## 8. Advanced Security and Compliance
+
+### 8.1 Software supply chain
+
+Risk is not only in application code, but also in dependencies.
+
+**Expected:**
+
+- minimal and justified dependencies;
+- locked versions;
+- CVE monitoring;
+- secure update procedure.
+
+### 8.2 Secret governance
+
+Beyond storage, organizations must manage rotation, revocation and historical exposure.
+
+**Expected:**
+
+- periodic rotation;
+- emergency revocation procedure;
+- Git history secret scanning;
+- clear environment separation.
+
+### 8.3 Privacy by design
+
+GDPR compliance must be designed up front:
+
+- data minimization;
+- explicit retention periods;
+- effective deletion rights;
+- logs without identifying data.
+
+### 8.4 Governance of data sent to AI tools
+
+Prompts can leak sensitive information if unmanaged.
+
+**Expected:**
+
+- clear policy on what data can be sent in prompts;
+- anonymization/pseudonymization when needed;
+- no secrets/PII without legal basis and controls;
+- periodic practice reviews.
+
+## 9. Certification Preparation Guide
+
+### 9.1 Recommended evidence package
+
+Preparing evidence strongly increases success probability:
+
+- documented architecture;
+- backlog and decision excerpts;
+- prompt samples and human validations;
+- test and quality gate outputs;
+- code review examples and corrective actions.
+
+### 9.2 Four-week training plan
+
+### Week 1
+
+- project frame setup;
+- commit/PR standards;
+- one tested micro-feature.
+
+### Week 2
+
+- separation of concerns hardening;
+- risk-oriented review practice;
+- testability improvements.
+
+### Week 3
+
+- performance/sobriety work;
+- OWASP + secrets hardening;
+- incident simulation and diagnosis.
+
+### Week 4
+
+- full mock audit;
+- gap remediation;
+- technical defense preparation.
+
+### 9.3 Frequent exam mistakes
+
+- theoretical answers disconnected from real code;
+- confusion between "working code" and "maintainable code";
+- missing AI traceability;
+- underestimating security and edge cases;
+- lack of concrete evidence (tests, logs, decisions).
+
+### 9.4 Final candidate checklist
+
+- I can explain architectural choices.
+- I can justify how AI was framed and constrained.
+- I can demonstrate the testing strategy.
+- I can prove security risk handling.
+- I can show reproducibility evidence.
+
+## 10. Practical Appendices
+
+### 10.1 AI-assisted PR checklist
+
+- explicit business objective;
+- respected file scope;
+- relevant tests added/updated;
+- risks identified and documented;
+- explicit human validation before merge.
+
+### 10.2 Quick security review checklist
+
+- input/output validation;
+- coherent auth/authz;
+- no plaintext secrets;
+- non-verbose end-user error exposure;
+- no known critical dependency vulnerabilities.
+
+### 10.3 Release go/no-go checklist
+
+- quality gates green;
+- migration validated;
+- rollback ready;
+- observability operational;
+- incident runbook up to date.

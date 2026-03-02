@@ -1,6 +1,4 @@
-# Référentiel OrkestrAI Standard v1
-
-Standard v1
+# Référentiel OrkestrAI
 
 Le référentiel OrkestrAI est un cadre d'évaluation complet, conçu pour mesurer la qualité
 du code produit en collaboration avec des outils d'intelligence artificielle. Il ne s'agit pas
@@ -338,3 +336,310 @@ Les logs ne contiennent ni emails, ni noms, ni adresses IP identifiantes. Un end
 existe et anonymise toutes les données de l'utilisateur. La politique de cookies est conforme au RGPD.
 
 **Comment auditer :** Audit RGPD complet. Revue des logs en production (chercher des PII). Vérifier le hashing des mots de passe. Tester la suppression de compte. Vérifier la politique de cookies et le consentement.
+
+## 6. Orchestration opérationnelle avancée
+
+Cette section complète les axes 1 à 5 avec des pratiques d'exécution terrain.
+Elle vise à rendre le référentiel directement utilisable pour préparer l'examen,
+structurer un projet réel et standardiser les habitudes d'équipe.
+
+### 6.1 Git, branches et worktrees
+
+L'usage de l'IA impose une isolation stricte des travaux. Un même développeur peut
+avoir plusieurs tâches en parallèle: feature, correctif urgent, revue de sécurité.
+Sans isolation, le contexte se pollue et les diffs deviennent non auditables.
+
+**Pratique recommandée:**
+
+- une branche par objectif métier;
+- un worktree par tâche active (`feature/*`, `fix/*`, `hotfix/*`);
+- aucun mélange de sujets dans un même diff;
+- suppression du worktree quand la tâche est terminée.
+
+**Exemple concret:**
+
+```bash
+git fetch origin
+git worktree add ../wt-score-endpoint -b feature/score-endpoint origin/main
+cd ../wt-score-endpoint
+```
+
+Chaque session IA se fait dans le worktree dédié, avec un périmètre de fichiers
+explicitement borné.
+
+**Comment auditer:**
+
+- vérifier la granularité des branches et commits;
+- confirmer qu'un patch = un objectif;
+- contrôler la lisibilité des PR (pas de bruit hors périmètre);
+- vérifier qu'aucune feature non terminée n'est restée cachée dans un worktree local.
+
+### 6.2 Hygiène de commit et traçabilité de décision
+
+Le code généré par IA devient inmaintenable sans historique de décision.
+Un commit doit expliquer "pourquoi", pas seulement "quoi".
+
+**Pratique recommandée:**
+
+- commits atomiques;
+- message conventionnel (type/scope);
+- référence du contexte de génération (prompt, ticket, ADR);
+- mention explicite des hypothèses prises.
+
+**Comment auditer:**
+
+- lire les 20 derniers commits d'une zone active;
+- mesurer la proportion de commits "WIP"/opaques;
+- vérifier la présence de liens vers docs, tickets ou décisions.
+
+### 6.3 Gestion du contexte IA
+
+Une bonne réponse IA dépend d'un bon contexte. Le contexte doit être stable,
+versionné, et aligné avec l'architecture cible.
+
+**Fichiers de cadrage minimum:**
+
+- `AGENTS.md` (règles d'interaction et interdits);
+- `docs/architecture.md` (frontières techniques);
+- `docs/decisions.md` (historique d'arbitrages);
+- `docs/backlog.md` (tâches courtes et vérifiables);
+- `docs/prompts/` (templates réutilisables).
+
+**Signaux de maturité:**
+
+- les prompts sont orientés objectifs et critères d'acceptation;
+- l'IA est contrainte sur les fichiers modifiables;
+- les sorties incluent systématiquement risques et tests.
+
+### 6.4 Catalogue de prompts et reproductibilité
+
+Le référentiel n'impose pas un outil, mais impose une méthode reproductible.
+Un catalogue de prompts permet de rejouer une génération et d'en comparer la qualité.
+
+**Template recommandé (par prompt):**
+
+1. Contexte
+2. Objectif
+3. Contraintes
+4. Fichiers autorisés
+5. Critères d'acceptation
+6. Risques connus
+7. Commandes de vérification
+
+**Comment auditer:**
+
+- vérifier que des templates existent et sont versionnés;
+- exécuter un replay sur une tâche similaire;
+- comparer lisibilité, robustesse et conformité aux conventions.
+
+### 6.5 Revue de diff orientée risques
+
+La revue d'un patch IA doit d'abord traiter les risques, avant le style.
+
+**Ordre de revue recommandé:**
+
+1. Bugs fonctionnels
+2. Régressions potentielles
+3. Sécurité
+4. Couplage architecture
+5. Dette technique
+6. Lisibilité/style
+
+**Comment auditer:**
+
+- vérifier la qualité des commentaires de review;
+- confirmer que les blocages critiques sont traités avant merge;
+- vérifier que les décisions de compromis sont documentées.
+
+## 7. Delivery, CI/CD et exploitation
+
+### 7.1 Quality gates CI/CD
+
+Un projet IA-assisted ne doit jamais reposer uniquement sur une validation locale.
+Les contrôles essentiels doivent être automatisés.
+
+**Gates minimales:**
+
+- lint/format;
+- tests unitaires et intégration;
+- analyse statique;
+- scan sécurité dépendances;
+- build reproductible.
+
+**Comment auditer:**
+
+- ouvrir la configuration CI;
+- vérifier qu'un échec bloque le merge;
+- confirmer l'absence de contournement permanent des checks.
+
+### 7.2 Migrations et sécurité des données
+
+Les migrations générées avec aide IA sont un risque majeur si elles ne sont pas
+testées sur données réalistes.
+
+**Pratique recommandée:**
+
+- migration idempotente ou strictement contrôlée;
+- rollback planifié;
+- sauvegarde avant opération destructive;
+- script de vérification post-migration.
+
+**Comment auditer:**
+
+- relire les migrations récentes;
+- vérifier la présence de tests d'intégration DB;
+- vérifier la stratégie de rollback et de reprise.
+
+### 7.3 Observabilité et diagnostic
+
+Un système bien orchestré est observable. Sans logs structurés, métriques et traces,
+les défauts IA-induced deviennent difficiles à expliquer.
+
+**Minimum attendu:**
+
+- logs structurés avec corrélation;
+- métriques techniques (latence, erreurs, saturation);
+- alertes sur seuils critiques;
+- runbooks d'incident.
+
+**Comment auditer:**
+
+- contrôler le contenu des logs;
+- simuler une erreur et vérifier le diagnostic;
+- vérifier la présence d'un runbook actionnable.
+
+### 7.4 Budgets de performance et sobriété
+
+Les exigences de performance doivent être explicites. "Ça fonctionne" n'est pas
+un critère suffisant pour un projet certifiable.
+
+**Exemples de budgets:**
+
+- temps de réponse p95;
+- poids maximal d'une page;
+- nombre maximal de requêtes DB par écran;
+- budget mémoire sur flux critiques.
+
+## 8. Sécurité avancée et conformité
+
+### 8.1 Supply chain logicielle
+
+Le risque ne vient pas seulement du code produit, mais des dépendances.
+
+**Attendus:**
+
+- dépendances minimales et justifiées;
+- versions verrouillées;
+- surveillance des CVE;
+- procédure de mise à jour sécurisée.
+
+### 8.2 Gouvernance des secrets
+
+Au-delà du stockage, il faut traiter rotation, révocation et exposition historique.
+
+**Attendus:**
+
+- rotation périodique;
+- procédure de révocation d'urgence;
+- scan historique Git;
+- séparation nette des environnements.
+
+### 8.3 Protection des données par conception
+
+La conformité RGPD doit être pensée dès la conception:
+
+- minimisation des données collectées;
+- durée de conservation explicite;
+- droit à l'effacement effectif;
+- journalisation sans données identifiantes.
+
+### 8.4 Gouvernance des données envoyées aux IA
+
+Les prompts peuvent devenir un vecteur de fuite de données sensibles.
+
+**Attendus:**
+
+- politique claire sur les données autorisées en prompt;
+- anonymisation/pseudonymisation si nécessaire;
+- interdiction d'envoyer secrets/PII sans base légale;
+- revue régulière des pratiques.
+
+## 9. Guide de préparation à l'examen
+
+### 9.1 Dossier de preuves recommandé
+
+Préparer un dossier de preuves augmente fortement la réussite:
+
+- architecture documentée;
+- extrait de backlog et décisions;
+- exemples de prompts et validations humaines;
+- résultats de tests et quality gates;
+- exemples de revues de code et corrections.
+
+### 9.2 Plan d'entraînement (4 semaines)
+
+### Semaine 1
+
+- setup du cadre projet;
+- standards de commits/PR;
+- micro-feature avec tests.
+
+### Semaine 2
+
+- travail sur séparation des responsabilités;
+- revue de code guidée risques;
+- amélioration de la testabilité.
+
+### Semaine 3
+
+- performance/sobriété;
+- sécurité OWASP + secrets;
+- simulation incident + diagnostic.
+
+### Semaine 4
+
+- audit blanc complet;
+- correction des écarts;
+- préparation de l'argumentaire technique.
+
+### 9.3 Erreurs fréquentes en situation d'examen
+
+- réponses théoriques non reliées au code réel;
+- confusion entre "code qui marche" et "code maintenable";
+- absence de traçabilité des usages IA;
+- sous-estimation de la sécurité et des cas limites;
+- manque de preuves concrètes (tests, logs, décisions).
+
+### 9.4 Checklist finale candidat
+
+- je peux expliquer mes choix d'architecture;
+- je peux justifier comment j'ai cadré l'IA;
+- je peux démontrer la stratégie de test;
+- je peux prouver la gestion des risques sécurité;
+- je peux montrer des preuves de reproductibilité.
+
+## 10. Annexes pratiques
+
+### 10.1 Checklist PR IA-assisted
+
+- objectif métier explicite;
+- périmètre de fichiers respecté;
+- tests adaptés ajoutés/mis à jour;
+- risques identifiés et documentés;
+- validation humaine explicite avant merge.
+
+### 10.2 Checklist "revue sécurité rapide"
+
+- validation entrées/sorties;
+- auth/authz cohérentes;
+- pas de secret en clair;
+- erreurs non verbeuses pour l'utilisateur final;
+- dépendances sans vulnérabilités critiques connues.
+
+### 10.3 Checklist "go/no-go release"
+
+- quality gates verts;
+- migration validée;
+- rollback prêt;
+- observabilité opérationnelle;
+- incident runbook à jour.
