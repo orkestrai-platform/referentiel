@@ -970,7 +970,7 @@ Elles doivent être citées dans les ADR, guides internes et formations.
 - SPDX specification:
   [SPDX](https://spdx.dev/specifications/)
 - CycloneDX SBOM:
-  [CycloneDX](https://cyclonedx.org/specification/)
+  [CycloneDX](https://cyclonedx.org/specification/overview/)
 
 ### 16.3 Opérations, incident et observabilité
 

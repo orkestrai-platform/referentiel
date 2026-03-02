@@ -967,7 +967,7 @@ They should be cited in ADRs, internal guides, and training materials.
 - SPDX specification:
   [SPDX](https://spdx.dev/specifications/)
 - CycloneDX SBOM:
-  [CycloneDX](https://cyclonedx.org/specification/)
+  [CycloneDX](https://cyclonedx.org/specification/overview/)
 
 ### 16.3 Operations, incident handling, observability
 
