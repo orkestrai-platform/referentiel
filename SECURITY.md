@@ -5,7 +5,7 @@
 If you discover a security issue related to this repository or its publication workflow,
 please report it privately to:
 
-- security@orkestrai.org
+- <security@orkestrai.org>
 
 Do not open a public issue for security vulnerabilities.
 
