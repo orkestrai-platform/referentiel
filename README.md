@@ -35,5 +35,19 @@ See [CONTRIBUTING.md](./CONTRIBUTING.md).
 
 ## License
 
-This repository is licensed under **CC BY-SA 4.0**.
-See [LICENSE](./LICENSE).
+
+All platform content — including courses, training materials, and exam
+questions/answers — is licensed under
+[CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/).
+
+
+[![License: CC BY-NC-SA 4.0](https://img.shields.io/badge/License-CC_BY--NC--SA_4.0-lightgrey.svg)](https://creativecommons.org/licenses/by-nc-sa/4.0/)
+
+
+© 2026 OrkestrAI / PayeTaCom — Commercial use is strictly prohibited
+without prior written authorization.
+
+
+> ⚠️ The source code of this platform is governed by a separate license.
+> Only the **content** (courses, assessments, materials) falls under CC BY-NC-SA 4.0.
+
